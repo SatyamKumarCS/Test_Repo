@@ -254,13 +254,13 @@ app.post('/api/checkout', (req, res) => {
 /**
  * GET /api/orders/:id
  * 
- * [BACKEND BUG #5]:
- * - Checks order.id (which is undefined since property is orderId) and performs strict string comparison with missing prefix.
+ * [BACKEND BUG #5 - FIXED]:
+ * - Looks up the order by its actual `orderId` property instead of the non-existent `id`.
  */
 app.get('/api/orders/:id', (req, res) => {
   const requestedId = req.params.id;
-  // BUG: Uses order.id instead of order.orderId
-  const order = orders.find(o => o.id === requestedId);
+  // FIX: Match against orderId (the property actually set on the order object)
+  const order = orders.find(o => o.orderId === requestedId);
 
   if (!order) {
     return res.status(404).json({ success: false, message: 'Order not found' });
