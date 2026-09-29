@@ -160,42 +160,52 @@ app.delete('/api/cart/:id', (req, res) => {
  * POST /api/coupons/apply
  * Body: { code, subtotal }
  * 
- * [BACKEND BUG #3]:
- * - Allows multiple coupon codes stacking without resetting previous discount.
- * - Does not check if discount exceeds subtotal, allowing 0 or negative final amounts.
- * - Inaccurate status codes: returns 200 OK with success:false when coupon is invalid.
+ * [BACKEND BUG #3 - FIXED]:
+ * - Invalid / ineligible coupons now return HTTP 400 instead of 200.
+ * - A coupon code cannot be applied twice in the same session (no stacking).
+ * - Fixed discounts are clamped so the total never drops below $0.
  */
 app.post('/api/coupons/apply', (req, res) => {
   const { code, subtotal } = req.body;
-  const coupon = VALID_COUPONS[code ? code.toUpperCase() : ''];
+  const normalizedCode = code ? code.toUpperCase() : '';
+  const coupon = VALID_COUPONS[normalizedCode];
 
   if (!coupon) {
-    // BUG: Returns 200 status code for bad coupon input instead of 400
-    return res.status(200).json({ success: false, message: 'Invalid promo code' });
+    // FIX: Correct 400 status for invalid coupon input
+    return res.status(400).json({ success: false, message: 'Invalid promo code' });
   }
 
-  if (subtotal < coupon.minSpend) {
-    return res.status(200).json({ 
-      success: false, 
-      message: `Minimum spend of $${coupon.minSpend} required for this coupon` 
+  // FIX: Prevent the same coupon from being applied more than once
+  if (appliedCoupons.includes(normalizedCode)) {
+    return res.status(400).json({ success: false, message: 'This promo code has already been applied' });
+  }
+
+  const numericSubtotal = Number(subtotal) || 0;
+
+  if (numericSubtotal < coupon.minSpend) {
+    return res.status(400).json({
+      success: false,
+      message: `Minimum spend of $${coupon.minSpend} required for this coupon`
     });
   }
 
   let discountAmount = 0;
   if (coupon.type === 'percentage') {
-    discountAmount = (subtotal * coupon.value) / 100;
+    discountAmount = (numericSubtotal * coupon.value) / 100;
   } else {
     discountAmount = coupon.value;
   }
 
-  // BUG: Stacking coupons infinitely without checking if code was already applied
-  appliedCoupons.push(code);
+  // FIX: Clamp discount so the payable total never goes below $0
+  discountAmount = Math.min(discountAmount, numericSubtotal);
+
+  appliedCoupons.push(normalizedCode);
 
   res.json({
     success: true,
-    code: code.toUpperCase(),
+    code: normalizedCode,
     discount: parseFloat(discountAmount.toFixed(2)),
-    newTotal: parseFloat((subtotal - discountAmount).toFixed(2))
+    newTotal: parseFloat((numericSubtotal - discountAmount).toFixed(2))
   });
 });
 
