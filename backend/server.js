@@ -116,10 +116,10 @@ app.get('/api/cart', (req, res) => {
  * POST /api/cart/add
  * Body: { productId, quantity }
  * 
- * [BACKEND BUG #2]:
- * - If item exists, quantity addition concatenates strings if req.body.quantity is string type
- *   (e.g., qty 1 + "2" becomes "12" instead of 3).
- * - Doesn't validate if quantity requested exceeds available stock on add.
+ * [BACKEND BUG #2 - FIXED]:
+ * - Quantity is now parsed to a number, preventing string concatenation
+ *   (e.g. qty 1 + "2" now correctly becomes 3 instead of "12").
+ * - Validates that the requested quantity does not exceed available stock.
  */
 app.post('/api/cart/add', (req, res) => {
   const { productId, quantity = 1 } = req.body;
@@ -129,18 +129,33 @@ app.post('/api/cart/add', (req, res) => {
     return res.status(404).json({ success: false, message: 'Product not found' });
   }
 
+  // FIX: Coerce quantity to a positive integer
+  const parsedQty = parseInt(quantity, 10);
+  if (isNaN(parsedQty) || parsedQty < 1) {
+    return res.status(400).json({ success: false, message: 'Quantity must be a positive integer' });
+  }
+
   const existingItemIndex = cart.findIndex(item => item.id === product.id);
+  const currentQty = existingItemIndex > -1 ? cart[existingItemIndex].quantity : 0;
+
+  // FIX: Reject requests that exceed available stock
+  if (currentQty + parsedQty > product.stock) {
+    return res.status(400).json({
+      success: false,
+      message: `Only ${product.stock} unit(s) of "${product.title}" available`
+    });
+  }
 
   if (existingItemIndex > -1) {
-    // BUG: Potential string concatenation when quantity is sent as a string or without Number casting
-    cart[existingItemIndex].quantity = cart[existingItemIndex].quantity + quantity;
+    // FIX: Numeric addition instead of string concatenation
+    cart[existingItemIndex].quantity = currentQty + parsedQty;
   } else {
     cart.push({
       id: product.id,
       title: product.title,
       price: product.price,
       image: product.image,
-      quantity: quantity
+      quantity: parsedQty
     });
   }
 
