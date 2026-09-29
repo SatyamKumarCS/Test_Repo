@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { X, Lock, Check, CreditCard } from 'lucide-react';
 
 /**
- * [FRONTEND REACT BUG #3]:
- * - Flawed email regex fails for standard emails containing dots or subdomains
- * - Accidental assignment operator (=) in `if (isEmailValid = false)` always forces it to false,
- *   permanently disabling the checkout button!
+ * [FRONTEND REACT BUG #3 - FIXED]:
+ * - Email regex now accepts standard addresses (dots, subdomains, plus tags).
+ * - Replaced the accidental assignment `if (isEmailValid = false)` with a proper
+ *   negation check `if (!isEmailValid)`, so valid emails no longer disable checkout.
  */
 export default function CheckoutModal({ isOpen, onClose, totalAmount, onSubmitOrder }) {
   if (!isOpen) return null;
@@ -32,12 +32,12 @@ export default function CheckoutModal({ isOpen, onClose, totalAmount, onSubmitOr
   };
 
   const validateEmail = (email) => {
-    // BUG: Overly restrictive regex that rejects standard emails
-    const emailRegex = /^[a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]{2,3}$/;
-    let isEmailValid = emailRegex.test(email);
+    // FIX: Permissive RFC-style pattern accepting dots, subdomains, and plus tags
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const isEmailValid = emailRegex.test(email);
 
-    // BUG: Assignment bug 'isEmailValid = false' always forces it to false!
-    if (isEmailValid = false) {
+    // FIX: Proper negation instead of the assignment bug `isEmailValid = false`
+    if (!isEmailValid) {
       setEmailError(true);
       return false;
     } else {
@@ -171,7 +171,7 @@ export default function CheckoutModal({ isOpen, onClose, totalAmount, onSubmitOr
             </div>
           </div>
 
-          {/* BUG: emailError or assignment bug locks button */}
+          {/* FIX: button is only disabled while submitting or on a genuine email error */}
           <button
             type="submit"
             disabled={isSubmitting || emailError}
