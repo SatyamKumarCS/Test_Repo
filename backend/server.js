@@ -41,24 +41,24 @@ const VALID_COUPONS = {
  * GET /api/products
  * Query Params: category, search, sortBy, limit
  * 
- * [BACKEND BUG #1]: 
- * - Search query filter is case-sensitive and misses lowercase searches.
- * - Category filter is strictly case sensitive ('audio' fails when category is 'Audio').
- * - Limit pagination has an off-by-one bug: slice(0, limit - 1) instead of slice(0, limit).
+ * [BACKEND BUG #1 - FIXED]:
+ * - Category filter is now case-insensitive ('audio' matches 'Audio').
+ * - Search filter is now case-insensitive on the product title.
+ * - Limit pagination now returns exactly `limit` items (off-by-one removed).
  */
 app.get('/api/products', (req, res) => {
   try {
     let result = [...products];
     const { category, search, sortBy, limit } = req.query;
 
-    // BUG: Strict case-sensitive match
+    // FIX: Case-insensitive category match
     if (category && category !== 'All') {
-      result = result.filter(p => p.category === category); 
+      result = result.filter(p => p.category.toLowerCase() === category.toLowerCase());
     }
 
-    // BUG: Search lacks .toLowerCase() on title
+    // FIX: Case-insensitive title search
     if (search) {
-      result = result.filter(p => p.title.includes(search));
+      result = result.filter(p => p.title.toLowerCase().includes(search.toLowerCase()));
     }
 
     // Sorting
@@ -70,10 +70,10 @@ app.get('/api/products', (req, res) => {
       result.sort((a, b) => b.rating - a.rating);
     }
 
-    // BUG: Off-by-one error with limit
+    // FIX: Return exactly `limit` items (removed off-by-one)
     if (limit && !isNaN(limit)) {
       const parsedLimit = parseInt(limit, 10);
-      result = result.slice(0, parsedLimit - 1); 
+      result = result.slice(0, parsedLimit);
     }
 
     res.json({
