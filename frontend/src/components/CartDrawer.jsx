@@ -2,10 +2,9 @@ import React, { useState } from 'react';
 import { ShoppingBag, X, Trash2, ArrowRight } from 'lucide-react';
 
 /**
- * [FRONTEND REACT BUG #1]:
- * - `tax` is computed with `.toFixed(2)` which returns a String!
- * - Grand Total performs string concatenation: `subtotal - discount + tax`
- *   (e.g., `100 - 20 + "8.00"` evaluates to `"808.00"` instead of `88.00`).
+ * [FRONTEND REACT BUG #1 - FIXED]:
+ * - `tax` is now kept as a Number for arithmetic and only formatted for display.
+ * - Grand Total is a numeric sum: `(subtotal - discount + taxAmount).toFixed(2)`.
  */
 export default function CartDrawer({
   isOpen,
@@ -25,11 +24,12 @@ export default function CartDrawer({
 
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  // BUG: .toFixed(2) produces a STRING
-  const tax = (subtotal * 0.08).toFixed(2);
+  // FIX: Keep tax as a Number for arithmetic; format only for display
+  const taxAmount = subtotal * 0.08;
+  const tax = taxAmount.toFixed(2);
 
-  // BUG: String concatenation bug because tax is a string
-  const grandTotal = subtotal - activeDiscount + tax;
+  // FIX: Numeric sum, then format the final total
+  const grandTotal = (subtotal - activeDiscount + taxAmount).toFixed(2);
 
   const handleCouponSubmit = async (e) => {
     e.preventDefault();
