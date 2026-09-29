@@ -203,9 +203,9 @@ app.post('/api/coupons/apply', (req, res) => {
  * POST /api/checkout
  * Body: { items, shippingAddress, paymentMethod, total }
  * 
- * [BACKEND BUG #4]:
- * - Uncaught TypeError when shippingAddress is missing or undefined (accesses shippingAddress.street directly without optional chaining).
- * - Does not decrement stock from the products database upon successful checkout.
+ * [BACKEND BUG #4 - FIXED]:
+ * - Validates shippingAddress before use, returning 400 instead of crashing with a TypeError.
+ * - Deducts purchased quantities from product.stock on successful checkout.
  */
 app.post('/api/checkout', (req, res) => {
   const { items, shippingAddress, paymentMethod, total } = req.body;
@@ -214,19 +214,27 @@ app.post('/api/checkout', (req, res) => {
     return res.status(400).json({ success: false, message: 'Your cart is empty' });
   }
 
-  // BUG: Direct property access on shippingAddress without null check -> causes server 500 crash if missing
+  // FIX: Validate shipping address before dereferencing it
+  if (!shippingAddress || !shippingAddress.street || !shippingAddress.city || !shippingAddress.zipCode) {
+    return res.status(400).json({ success: false, message: 'Incomplete shipping address' });
+  }
+
   const fullAddress = `${shippingAddress.street}, ${shippingAddress.city}, ${shippingAddress.zipCode}`;
 
-  // BUG: Verifies stock exists, but fails to deduct items from inventory!
+  // FIX: Verify stock AND deduct purchased quantities from inventory
   for (const item of items) {
     const product = products.find(p => p.id === item.id);
     if (!product || product.stock < item.quantity) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Insufficient stock for ${item.title}` 
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient stock for ${item.title}`
       });
     }
-    // MISSING: product.stock -= item.quantity;
+  }
+
+  for (const item of items) {
+    const product = products.find(p => p.id === item.id);
+    product.stock -= item.quantity;
   }
 
   const newOrder = {
