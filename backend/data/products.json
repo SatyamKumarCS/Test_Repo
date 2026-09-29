@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "title": "Aura Pro Wireless ANC Headphones",
+    "price": 249.99,
+    "category": "Audio",
+    "rating": 4.8,
+    "reviewsCount": 124,
+    "stock": 15,
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+    "description": "Premium noise-cancelling wireless headphones with 40-hour battery life and spatial audio."
+  },
+  {
+    "id": 2,
+    "title": "Pulse Smartwatch Ultra Series",
+    "price": 199.50,
+    "category": "Wearables",
+    "rating": 4.6,
+    "reviewsCount": 89,
+    "stock": 8,
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+    "description": "Titanium case with ECG monitor, dual-frequency GPS, and always-on OLED display."
+  },
+  {
+    "id": 3,
+    "title": "Lumix Mechanical Keyboard RGB",
+    "price": 129.00,
+    "category": "Accessories",
+    "rating": 4.9,
+    "reviewsCount": 210,
+    "stock": 25,
+    "image": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=600&auto=format&fit=crop&q=80",
+    "description": "Hot-swappable tactile mechanical switches with custom PBT keycaps and gasket mount."
+  },
+  {
+    "id": 4,
+    "title": "Apex Minimalist Leather Backpack",
+    "price": 89.99,
+    "category": "Lifestyle",
+    "rating": 4.5,
+    "reviewsCount": 67,
+    "stock": 12,
+    "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&auto=format&fit=crop&q=80",
+    "description": "Water-resistant vegan leather backpack with dedicated 16-inch laptop compartment."
+  },
+  {
+    "id": 5,
+    "title": "Vortex Wireless Gaming Mouse",
+    "price": 74.99,
+    "category": "Accessories",
+    "rating": 4.7,
+    "reviewsCount": 142,
+    "stock": 30,
+    "image": "https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?w=600&auto=format&fit=crop&q=80",
+    "description": "Ultra-lightweight 58g ergonomic wireless mouse with 26K DPI optical sensor."
+  },
+  {
+    "id": 6,
+    "title": "Zenith Studio Soundbar & Subwoofer",
+    "price": 319.00,
+    "category": "Audio",
+    "rating": 4.4,
+    "reviewsCount": 53,
+    "stock": 5,
+    "image": "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=600&auto=format&fit=crop&q=80",
+    "description": "Dolby Atmos 3.1 channel cinema soundbar with wireless deep bass subwoofer."
+  },
+  {
+    "id": 7,
+    "title": "Solstice Polarized Sunglasses",
+    "price": 59.00,
+    "category": "Lifestyle",
+    "rating": 4.3,
+    "reviewsCount": 98,
+    "stock": 40,
+    "image": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&auto=format&fit=crop&q=80",
+    "description": "Classic matte black frame with UV400 polarized HD anti-glare lenses."
+  },
+  {
+    "id": 8,
+    "title": "Halo Fitness Tracker Band",
+    "price": 49.99,
+    "category": "Wearables",
+    "rating": 4.1,
+    "reviewsCount": 77,
+    "stock": 18,
+    "image": "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=600&auto=format&fit=crop&q=80",
+    "description": "Continuous heart rate, SpO2 tracker, sleep stage analysis, 14-day battery life."
+  }
+]
