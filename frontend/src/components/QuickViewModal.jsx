@@ -1,19 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ShoppingBag, CheckCircle, Star } from 'lucide-react';
 
 /**
- * [FRONTEND REACT BUG #2]:
- * - Uses local state `imageSrc` initialized once with `product?.image`
- * - Lacks `useEffect` listening to `product?.id`, so when opening different products,
- *   the modal image does NOT update to the new product's image!
+ * [FRONTEND REACT BUG #2 - FIXED]:
+ * - `imageSrc` is now synchronized with the `product` prop via useEffect,
+ *   so opening a different product always shows that product's image.
  */
 export default function QuickViewModal({ product, onClose, onAddToCart }) {
-  if (!product) return null;
-
   const [quantity, setQuantity] = useState(1);
-  
-  // BUG: Local state initialized without synchronization on product prop change
-  const [imageSrc, setImageSrc] = useState(product.image);
+
+  // FIX: Keep local image state in sync when the selected product changes
+  const [imageSrc, setImageSrc] = useState(product?.image);
+
+  useEffect(() => {
+    setImageSrc(product?.image);
+    setQuantity(1);
+  }, [product?.id]);
+
+  if (!product) return null;
 
   const handleDecrease = () => {
     if (quantity > 1) setQuantity(quantity - 1);
@@ -37,7 +41,7 @@ export default function QuickViewModal({ product, onClose, onAddToCart }) {
 
         <div className="modal-body">
           <div className="modal-image-col">
-            {/* BUG: Uses stale imageSrc */}
+            {/* FIX: imageSrc stays in sync with the selected product */}
             <img src={imageSrc} alt={product.title} />
           </div>
 
